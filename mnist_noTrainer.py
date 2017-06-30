@@ -62,7 +62,7 @@ def main():
     epoch = 0
     for batch in train_iter:
 
-        model.zerograds()
+        model.cleargrads()
         (x, t) = convert.concat_examples( batch )
         loss = model.loss(x, t)
         loss.backward()
