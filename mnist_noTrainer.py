@@ -39,7 +39,7 @@ class Net(chainer.Chain):
 
 def main():
     # config
-    Epoch = 20
+    max_epoch = 20
     batchsize = 100
 
     # Model
@@ -51,36 +51,30 @@ def main():
     # Data
     train, test = chainer.datasets.get_mnist()
     train_iter = chainer.iterators.SerialIterator(train, batchsize)
-    test_iter = chainer.iterators.SerialIterator(test, batchsize,
-            repeat=False, shuffle=False)
-
+    test_iter = chainer.iterators.SerialIterator(test, batchsize, repeat=False, shuffle=False)
 
     # print header
     print("Epoch\tloss(train)\taccuracy(train)\taccuracy(test)")
 
     # train
-    epoch = 0
-    for batch in train_iter:
+    while train_iter.epoch < max_epoch:
+
+        train_batch = train_iter.next()
+        (x, t) = convert.concat_examples(train_batch)
 
         model.cleargrads()
-        (x, t) = convert.concat_examples( batch )
         loss = model.loss(x, t)
         loss.backward()
         optimizer.update()
 
         # log every epoch
-        if( train_iter.epoch > epoch ):
-            epoch += 1
+        if( train_iter.is_new_epoch ):
 
-            # accuracy
+            # calculate accuracy
             loss_train, accuracy_train  = model.loss_with_accuracy( *train._datasets )
             _         , accuracy_test   = model.loss_with_accuracy( *test._datasets )
 
-            print("%d\t%f\t%f\t%f" % (epoch, loss_train.data, accuracy_train, accuracy_test))
-
-        if( epoch >= Epoch ):
-            # finish training
-            break
+            print("%d\t%f\t%f\t%f" % (train_iter.epoch, loss_train.data, accuracy_train, accuracy_test))
 
 
 if __name__ == '__main__':

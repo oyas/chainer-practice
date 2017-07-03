@@ -49,7 +49,7 @@ def plot_mnist_data(data, label, filename, size=(28, 28)):
 
 def main():
     # config
-    Epoch = 20
+    max_epoch = 20
     batchsize = 100
     test_index = 22
 
@@ -73,36 +73,32 @@ def main():
     print("Epoch\tloss(train)")
 
     # train
-    epoch = 0
-    for batch in train_iter:
+    while train_iter.epoch < max_epoch:
+
+        train_batch = train_iter.next()
+        (x, t) = convert.concat_examples(train_batch)
 
         model.cleargrads()
-        (x, t) = convert.concat_examples( batch )
         loss = model.loss(x, t)
         loss.backward()
         optimizer.update()
 
         # log every epoch
-        if( train_iter.epoch > epoch ):
-            epoch += 1
+        if( train_iter.is_new_epoch ):
 
             # loss
             (x, t) = convert.concat_examples( train_iter.dataset )
             loss_train = model.loss( x, t )
 
-            print("%d\t%f" % (epoch, loss_train.data))
+            print("%d\t%f" % (train_iter.epoch, loss_train.data))
 
             # plot predict data
             (x, t) = test[ test_index ]
             data = model.predictor( np.array([x]) ).data
-            plot_mnist_data(data, t, 'result/epoch_{}.png'.format(epoch))
+            plot_mnist_data(data, t, 'result/epoch_{}.png'.format(train_iter.epoch))
             # plot hidden node
             data = model( np.array([x]), True ).data
-            plot_mnist_data(data, t, 'result/epoch_{}_hidden.png'.format(epoch), (8,8))
-
-        # finish training
-        if( epoch >= Epoch ):
-            break
+            plot_mnist_data(data, t, 'result/epoch_{}_hidden.png'.format(train_iter.epoch), (8,8))
 
 
 if __name__ == '__main__':
