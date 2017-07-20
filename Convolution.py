@@ -15,8 +15,6 @@ class Net(chainer.Chain):
     def __init__(self, n_units, n_out, loss_function = F.softmax_cross_entropy):
         super().__init__(
             conv1=L.Convolution2D(None, 32, 5),
-            #conv2=L.Convolution2D(None, 10, 3),
-            #l1=L.Linear(None, n_units),  # n_in -> n_units
             l2=L.Linear(None, n_units),  # n_units -> n_units
             l3=L.Linear(None, n_out),  # n_units -> n_out
         )
@@ -48,7 +46,7 @@ class Net(chainer.Chain):
 
 def main():
     # get args
-    parser = argparse.ArgumentParser(description='Chainer example: MNIST')
+    parser = argparse.ArgumentParser(description='ConvolutionNN')
     parser.add_argument('--batchsize', '-b', type=int, default=100,
                         help='Number of images in each mini-batch')
     parser.add_argument('--epoch', '-e', type=int, default=20,
@@ -75,7 +73,7 @@ def main():
 
     # Data
     train, test = chainer.datasets.get_mnist()
-    # convert to 4 dim tensor (num of sample, channel, height, width)
+    # convert to 3 dim tensor (channel, height, width)
     X_train = [( t[0].reshape(1, 28, 28), t[1] ) for t in train ]
     X_test  = [( t[0].reshape(1, 28, 28), t[1] ) for t in test  ]
     train_iter = chainer.iterators.SerialIterator(X_train, args.batchsize)
@@ -87,7 +85,7 @@ def main():
     # train
     while train_iter.epoch < args.epoch:
 
-        # batch data
+        # next batch data
         train_batch = train_iter.next()
         (x, t) = convert.concat_examples(train_batch)
 
