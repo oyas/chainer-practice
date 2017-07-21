@@ -16,7 +16,7 @@ class Net(chainer.Chain):
         super().__init__(
             conv1=L.Convolution2D(None, 32, 5),
             l2=L.Linear(None, n_units),  # n_units -> n_units
-            l3=L.Linear(None, n_out),  # n_units -> n_out
+            l3=L.Linear(None, n_out),    # n_units -> n_out
         )
         self.loss_function = loss_function
 
@@ -28,14 +28,14 @@ class Net(chainer.Chain):
         y  = self.l3(h2)
         return y
 
+    # calculate loss and accuracy
     def forward(self, x, t):
         if( not self._cpu ):
             x = chainer.cuda.to_gpu( x )
             t = chainer.cuda.to_gpu( t )
         y = self.__call__(x)
         self.loss = self.loss_function(y, t)
-        y = self.xp.argmax(y.data, axis=1)
-        self.accuracy = sum(y == t) / t.shape[0]
+        self.accuracy = F.accuracy(y, t)
         return self.loss
 
     def predict(self, x):
@@ -102,7 +102,7 @@ def main():
             (x, t) = convert.concat_examples(test_iter.dataset)
             model.forward( x, t )
 
-            print("%d\t%f\t%f" % (train_iter.epoch, loss.data, model.accuracy))
+            print("%d\t%f\t%f" % (train_iter.epoch, loss.data, model.accuracy.data))
 
 
 if __name__ == '__main__':

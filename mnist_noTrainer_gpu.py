@@ -16,7 +16,7 @@ class Net(chainer.Chain):
         super().__init__(
             l1=L.Linear(None, n_units),  # n_in -> n_units
             l2=L.Linear(None, n_units),  # n_units -> n_units
-            l3=L.Linear(None, n_out),  # n_units -> n_out
+            l3=L.Linear(None, n_out),    # n_units -> n_out
         )
         self.loss_function = loss_function
 
@@ -32,8 +32,7 @@ class Net(chainer.Chain):
     def loss_with_accuracy(self, x, t):
         y = self.__call__(x)
         loss = self.loss_function(y, t)
-        y = self.xp.argmax(y.data, axis=1)
-        accuracy = sum(y == t) / t.shape[0]
+        accuracy = F.accuracy(y, t)
         return loss, accuracy
 
 
