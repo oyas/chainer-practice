@@ -87,7 +87,7 @@ def main():
             t = chainer.cuda.to_gpu( t )
             _         , accuracy_test   = model.loss_with_accuracy( x, t )
 
-            print("%d\t%f\t%f" % (train_iter.epoch, loss.data, accuracy_test))
+            print("%d\t%f\t%f" % (train_iter.epoch, loss.data, accuracy_test.data))
 
 
 if __name__ == '__main__':
